@@ -1,0 +1,41 @@
+name: Wait for checks
+description: Wait until every other check on a commit finishes, and fail unless all of them pass.
+
+inputs:
+  token:
+    description: "GitHub token with `checks: read` and `statuses: read`."
+    required: false
+    default: ${{ github.token }}
+  repository:
+    description: "Repository in owner/repo format."
+    required: false
+    default: ${{ github.repository }}
+  sha:
+    description: "Commit to inspect. Defaults to the PR head."
+    required: false
+    default: ${{ github.event.pull_request.head.sha }}
+  require-checks:
+    description: "Fail when there are no other checks to wait for."
+    required: false
+    default: "false"
+  timeout-minutes:
+    description: "Give up after this many minutes."
+    required: false
+    default: "60"
+  interval-seconds:
+    description: "Polling interval."
+    required: false
+    default: "20"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_SHA: ${{ inputs.sha }}
+        INPUT_REQUIRE_CHECKS: ${{ inputs.require-checks }}
+        INPUT_TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
+        INPUT_INTERVAL_SECONDS: ${{ inputs.interval-seconds }}
+      run: $GITHUB_ACTION_PATH/wait-checks.sh
