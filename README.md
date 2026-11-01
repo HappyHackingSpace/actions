@@ -32,3 +32,30 @@ A PR is merged only when:
 3. [`pr/wait-checks`](pr/wait-checks) sees every other check on the PR pass. For ecosystems without a compat check (GitHub Actions, Gradle, NuGet, Swift, ...) at least one such check must exist.
 
 Merges use `GITHUB_TOKEN`, so they do not trigger `push` workflows.
+
+## Link check
+
+Reusable [lychee](https://github.com/lycheeverse/lychee) link checker for markdown-heavy repos (awesome lists, docs). Dead links fail the run; 429s are tolerated and results are cached for a day.
+
+```yaml
+name: Link Check
+
+on:
+  push:
+    branches: [main]
+    paths: ["**.md"]
+  pull_request:
+    paths: ["**.md"]
+  schedule:
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    uses: HappyHackingSpace/actions/.github/workflows/link-check.yaml@v1
+```
+
+Inputs: `paths` (default `'**/*.md'`), `extra-args` (passed to lychee, e.g. `--exclude twitter.com`).
